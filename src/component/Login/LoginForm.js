@@ -5,8 +5,11 @@ import React, { Component } from 'react';
   Text, Image, TextInput,     
   View,TouchableOpacity,StatusBar,Navigator,AsyncStorage
 } from 'react-native';
+var t = require('tcomb-form-native');
+var axios = require('axios');
 import Signup from '../Signup/Signup';
-//import { Actions } from 'react-native-router-flux'
+import Auth from '../../Auth/Auth.js'
+
 
 export default class LoginForm extends Component {
 
@@ -14,10 +17,11 @@ export default class LoginForm extends Component {
         super();
 
         this.state = {
-            username = "",
-            password = "",
-
+            username : "",
+            password : "",
+            errors : ""
         }
+        this.onLogin = this.onLogin.bind(this);
     }
     
     onButtonPress() {
@@ -26,43 +30,36 @@ export default class LoginForm extends Component {
        });
     }
 
-  async  onLogin(){
-       try{
- //var DEMO_TOKEN = await AsyncStorage.getItem(STORAGE_KEY);
-fetch('/', {
-  method: 'post',
-  headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-   // 'Authorization': 'Bearer ' + DEMO_TOKEN
-    
-  },
-  body: JSON.stringify({
-     user :{
-        name : this.state.username,
+async onLogin(){
+var user = {
+        email : this.state.username,
         password : this.state.password,
-     }
+};
+var formBody=[];
+
+for (var property in user) {
+  var encodedKey = encodeURIComponent(property);
+  var encodedValue = encodeURIComponent(user[property]);
+  formBody.push(encodedKey + "=" + encodedValue);
+}
+formBody = formBody.join("&");
+
+axios.post('http://10.0.0.230:3000/auth/login',formBody
+  )
+  .then(function (response) {
+    console.log(response);
+    if(response.status == 200)
+          alert("Login Successful");
+         //  this.setState({errors:""});
+          this.props.navigator.push({
+      component: 'Chat'
   })
-});
-
-let  res = await Response.text();
-if(response.status ==200){
-    console.log( "res" + res);
-}
-else{
-     let errors = res;
-     throw errors;
-}
-
-}
- catch(errors){
-    console.log("catch errors:"+ errors);
- 
- }
-
-
-
-    }
+  })
+  .catch(function (error) {
+    console.log(error);
+   // this.setState({errors: error});
+    console.error(error);
+  })};
   render() {
 
     return (
@@ -85,7 +82,7 @@ else{
           placeholderTextColor ='rgba(255,255,255,0.8)'
           />
 
-          <TouchableOpacity style={styles.buttonContainer} onPress={this.onLogin.bind(this)}>
+          <TouchableOpacity style={styles.buttonContainer} onPress={this.onLogin}>
               <Text style= {styles.buttonText}> Login </Text>
             </TouchableOpacity>
 

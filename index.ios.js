@@ -5,49 +5,60 @@
  */
 
 import React, { Component } from 'react';
-import {
+import Login from './src/component/Login/Login'
+import Signup from './src/component/Signup/Signup'
+import LoginForm from './src/component/Login/LoginForm'
+//import {Scene,Router} from 'react-native-router-flux'
+  import {
   AppRegistry,
   StyleSheet,
+  AsyncStorage,
   Text,
-  View
+  View, Navigator
 } from 'react-native';
 
 export default class AmigoApp extends Component {
+  renderScence(route, navigator){
+switch(route.component){
+  case 'Login' :
+  return (<Login navigator ={navigator} title ="Login"/>)
+
+  case 'Signup' :
+  return (<Signup  navigator ={navigator} title ="Register"/>)
+  
+}
+
+}
+
   render() {
     return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Welcome to React Native!
-        </Text>
-        <Text style={styles.instructions}>
-          To get started, edit index.ios.js
-        </Text>
-        <Text style={styles.instructions}>
-          Press Cmd+R to reload,{'\n'}
-          Cmd+D or shake for dev menu
-        </Text>
-      </View>
+      <Navigator
+      initialRoute = {{component :'Login'}}
+      renderScene ={this.renderScence.bind(this)}
+      configureScene={(route,routeStack) => Navigator.SceneConfigs.FloatFromLeft}
+      />
     );
   }
 }
 
+/*render() {
+    return <Router>
+      <Scene key="root">
+        <Scene key="login" component={Login} title="Login" initial/>
+        <Scene key="register" component={Signup} title="Register"/>
+      </Scene>
+    </Router>
+  }
+
+}*/
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#3498db',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+
 });
 
 AppRegistry.registerComponent('AmigoApp', () => AmigoApp);

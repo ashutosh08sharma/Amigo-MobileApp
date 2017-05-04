@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import Login from './src/component/Login/Login'
 import Signup from './src/component/Signup/Signup'
 import LoginForm from './src/component/Login/LoginForm'
+import Chat from './src/component/dashboard/chat/Chat'
 //import {Scene,Router} from 'react-native-router-flux'
   import {
   AppRegistry,
@@ -25,6 +26,9 @@ switch(route.component){
 
   case 'Signup' :
   return (<Signup  navigator ={navigator} title ="Register"/>)
+
+  case 'Chat' :
+  return (<Chat navigator ={navigator} title="Chat"/>)
   
 }
 

@@ -1,4 +1,5 @@
 /* Created By Ashutosh Sharma */
+'use strict';
 import React, { Component } from 'react';
 
   import {
@@ -6,6 +7,26 @@ import React, { Component } from 'react';
   Text, Image, TextInput, ScrollView,    
   View,TouchableOpacity, Navigator,AsyncStorage
 } from 'react-native';
+var t = require('tcomb-form-native');
+var axios = require('axios');
+import Auth from '../../Auth/Auth.js'
+const STORAGE_KEY = 'token';
+
+//  var Form = t.form.Form;
+
+// var Person = t.struct({
+//   name: t.String,              // a required string
+//   email: t.String,  // an  string
+//   password: t.String,               // a required number
+//   slackUser :t.String,
+//    riaUUID : t.String,
+//    awsCreds :  t.maybe(t.String),
+//   access_key_id : t.String,
+//   secret_access_key : t.String,
+//   region :  t.String     // a String 
+// });
+
+// var options = {}; 
 
 
 export default class Signup extends Component {
@@ -13,61 +34,72 @@ constructor(){
  super();
 
     this.state = {
-        username ="",
-        email ="",
-        password ="",
-        riaId ="",
-        slackId ="",
-        awsAccessKey ="",
-        awsSecretKey="",
+        username :'',
+        email :'',
+        password :'',
+        riaId :'',
+        slackId :'',
+        awsAccessKey :'',
+        awsSecretKey:'',
+        region:'',
+        errors :''
 
     }
-
+    
+}
+onCancel(){
+this.setState = {
+        username :'',
+        email :'',
+        password :'',
+        riaId :'',
+        slackId :'',
+        awsAccessKey :'',
+        awsSecretKey:'',
+        region:'',
+   }
 }
 
-async onRegisterPress(){
- try{
-
-fetch('endpoint/', {
-  method: 'POST',
-  headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-     user :{
+ onRegisterPress()
+{
+  var params = {
         name : this.state.username,
         email : this.state.email,
         password : this.state.password,
         slackUser : this.state.slackId,
         riaUUID : this.state.riaId,
-        awsCreds : {
-            access_key_id : this.state.awsAccessKey,
-            secret_access_key : this.state.awsSecretKey,
-            region : this.state.region
-        }
-     }
+        awsCred : "aws Cred",
+        accessKeyId : this.state.awsAccessKey,
+        secretAccessKey : this.state.awsSecretKey,
+        region : this.state.region
+  };
+
+var formBody = [];
+for (var property in params) {
+  var encodedKey = encodeURIComponent(property);
+  var encodedValue = encodeURIComponent(params[property]);
+  formBody.push(encodedKey + "=" + encodedValue);
+}
+formBody = formBody.join("&");
+axios.post('http://10.0.0.230:3000/auth/signup',formBody
+  )
+  .then(function (response) {
+    console.log(response);
+    if(response.status == 200)
+          alert("200");
+           this.setState({errors:""});
+      
+          this.props.navigator.push({
+      component: 'Login'
   })
-});
+  })
+  .catch(function (error) {
+    console.log(error);
+    // this.setState({errors: error});
+    console.error(error);
+  })};
 
-let  res = await Response.text();
-if(response.status ==201){
-    console.log( "res" + res);
-}
-else{
-     let errors = res;
-     throw errors;
-}
-
-}
- catch(errors){
-    console.log("catch errors:"+errors);
- 
- }
-
-}
-
-  render() {
+    render() {
     return (
         <ScrollView>
       <View style={styles.container}>
@@ -113,12 +145,19 @@ else{
       onChangeText={(val) => this.setState({region:val}) }
      placeholder = 'Region'
      returnKeyType='next'/>
+{/*
+     <Form
+          ref="form"
+          type={Person}
+          options={options}
+        />*/}
 
-     <TouchableOpacity style ={styles.buttonContainer}>
+      <TouchableOpacity style ={styles.buttonContainer}>
           <Text style={styles.buttonText} onPress={this.onRegisterPress.bind(this)}> Register</Text>
          </TouchableOpacity>
+
           <TouchableOpacity style ={styles.cancelBttn}>
-          <Text style={styles.buttonText}> Cancel</Text>
+          <Text style={styles.buttonText} onPress={this.onCancel.bind(this)}> Cancel</Text>
          </TouchableOpacity>
       </View>
       </ScrollView>
@@ -149,9 +188,9 @@ const styles = StyleSheet.create({
   },
   buttonContainer :{
       backgroundColor:'#2980b9',
-      falexDirection:'row',
+      flexDirection:'row',
       flexWrap :'wrap',
-      paddingVertical : 10,
+     paddingVertical : 10,
       width:250,
       marginBottom :10,
   },
