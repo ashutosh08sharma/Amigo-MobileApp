@@ -9,7 +9,8 @@ import Login from './src/component/Login/Login'
 import Signup from './src/component/Signup/Signup'
 import LoginForm from './src/component/Login/LoginForm'
 import Chat from './src/component/dashboard/chat/Chat'
-//import {Scene,Router} from 'react-native-router-flux'
+import UpdateProfile from './src/component/UpdateProfile/editProfile'
+
   import {
   AppRegistry,
   StyleSheet,
@@ -29,12 +30,12 @@ switch(route.component){
 
   case 'Chat' :
   return (<Chat navigator ={navigator} title="Chat"/>)
+
+  case 'UpdateProfile' :
+  return (<UpdateProfile navigator ={navigator} title="Update Profile"/>)
   
-}
-
-}
-
-  render() {
+} }
+ render() {
     return (
       <Navigator
       initialRoute = {{component :'Login'}}
@@ -42,8 +43,7 @@ switch(route.component){
       configureScene={(route,routeStack) => Navigator.SceneConfigs.FloatFromLeft}
       />
     );
-  }
-}
+  }}
 
 /*render() {
     return <Router>
