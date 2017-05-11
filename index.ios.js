@@ -8,7 +8,9 @@ import React, { Component } from 'react';
 import Login from './src/component/Login/Login'
 import Signup from './src/component/Signup/Signup'
 import LoginForm from './src/component/Login/LoginForm'
-//import {Scene,Router} from 'react-native-router-flux'
+import Chat from './src/component/dashboard/chat/Chat'
+import UpdateProfile from './src/component/UpdateProfile/editProfile'
+
   import {
   AppRegistry,
   StyleSheet,
@@ -25,12 +27,15 @@ switch(route.component){
 
   case 'Signup' :
   return (<Signup  navigator ={navigator} title ="Register"/>)
+
+  case 'Chat' :
+  return (<Chat navigator ={navigator} title="Chat"/>)
+
+  case 'UpdateProfile' :
+  return (<UpdateProfile navigator ={navigator} title="Update Profile"/>)
   
-}
-
-}
-
-  render() {
+} }
+ render() {
     return (
       <Navigator
       initialRoute = {{component :'Login'}}
@@ -38,19 +43,7 @@ switch(route.component){
       configureScene={(route,routeStack) => Navigator.SceneConfigs.FloatFromLeft}
       />
     );
-  }
-}
-
-/*render() {
-    return <Router>
-      <Scene key="root">
-        <Scene key="login" component={Login} title="Login" initial/>
-        <Scene key="register" component={Signup} title="Register"/>
-      </Scene>
-    </Router>
-  }
-
-}*/
+  }}
 const styles = StyleSheet.create({
   container: {
     flex: 1,

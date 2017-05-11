@@ -10,6 +10,8 @@ import Toaster, { ToastStyles } from 'react-native-toaster'
 var axios = require('axios');
 import Signup from '../Signup/Signup';
 import Auth from '../../Auth/Auth.js';
+const STORAGE_KEY = 'token';
+var base64 = require('base-64');
 
 
 export default class LoginForm extends Component {
@@ -21,11 +23,11 @@ export default class LoginForm extends Component {
       username: "",
       password: "",
       errors: "",
-      message :null
+      message: null
     }
     this.onLogin = this.onLogin.bind(this);
- 
- }
+
+  }
 
   onButtonPress() {
     this.props.navigator.push({
@@ -33,42 +35,46 @@ export default class LoginForm extends Component {
     });
   }
 
-   onLogin() {
-     let self = this;
+  onLogin() {
+    let self = this;
     var user = {
       email: self.state.username,
       password: self.state.password,
     };
-    var formBody = [];
+    // var formBody = [];
 
-    for (var property in user) {
-      var encodedKey = encodeURIComponent(property);
-      var encodedValue = encodeURIComponent(user[property]);
-      formBody.push(encodedKey + "=" + encodedValue);
-    }
-    formBody = formBody.join("&");
+    // for (var property in user) {
+    //   var encodedKey = encodeURIComponent(property);
+    //   var encodedValue = encodeURIComponent(user[property]);
+    //   formBody.push(encodedKey + "=" + encodedValue);
+    // }
+    // formBody = formBody.join("&");
 
-    axios.post('http://10.0.0.230:3000/auth/login', formBody
+    axios.head('http://10.0.0.230/api/v1.0/users', {
+      headers: { 'Authorization': 'basic' + base64.encode("user.email:user.password") }
+    }, JSON.stringify(user)
     )
       .then(function (response) {
         console.log(response);
-       if (response.status == 200)
-         // alert("Login Successful");
-         self.setState({message:{text: 'Login Successful!', styles: ToastStyles.success}});
-      
+        if (response.status == 200)
+          // alert("Login Successful");
+          Auth.authenticateUser(STORAGE_KEY, response.token);
+        self.setState({ message: { text: 'Login Successful!', styles: ToastStyles.success } });
+
         self.props.navigator.push({
-          component: 'Chat'
+          component: 'Chat',
+          username: this.state.username
         });
-      }) .catch(function (error) {
+      }).catch(function (error) {
         console.log(error);
-        self.setState({message: { text: 'Failed to Login', styles: ToastStyles.error }});
-       // console.error(error);
+        self.setState({ message: { text: 'Failed to Login', styles: ToastStyles.error } });
+        // console.error(error);
       })
   };
   render() {
 
     return (
-  
+
       <View style={styles.container}>
         <StatusBar barStyle="light-content" />
         <TextInput style={styles.input}
@@ -80,7 +86,7 @@ export default class LoginForm extends Component {
           keyboardType='email-address'
         />
         <TextInput style={styles.input}
-          
+
           placeholder='Password'
           onChangeText={(val) => this.setState({ password: val })}
           secureTextEntry
@@ -96,7 +102,7 @@ export default class LoginForm extends Component {
         <TouchableOpacity style={styles.buttonContainer} onPress={this.onButtonPress.bind(this)}>
           <Text style={styles.buttonText} > Sign-up </Text>
         </TouchableOpacity>
-         <Toaster message={this.state.message} />
+        <Toaster message={this.state.message} />
       </View>
     );
   }

@@ -10,7 +10,7 @@ import React, { Component } from 'react';
 var t = require('tcomb-form-native');
 var axios = require('axios');
 import Auth from '../../Auth/Auth.js'
-const STORAGE_KEY = 'token';
+const USER_ID = 'user';
 import Toaster, { ToastStyles } from 'react-native-toaster';
 export default class Signup extends Component {
 constructor(){
@@ -44,27 +44,28 @@ onRegisterPress()
         email : self.state.email,
         password : self.state.password,
         slackUser : self.state.slackId,
-        riaUUID : self.state.riaId,
-        awsCred : "aws Cred",
-        accessKeyId : self.state.awsAccessKey,
-        secretAccessKey : self.state.awsSecretKey,
-        region : self.state.region
+        riaId : self.state.riaId,
+        awsCredentials : {
+        awsAccessKeyId : self.state.awsAccessKey,
+        awsSecretAccessKey : self.state.awsSecretKey,
+        region : self.state.region}
   };
 
-var formBody = [];
-for (var property in params) {
-  var encodedKey = encodeURIComponent(property);
-  var encodedValue = encodeURIComponent(params[property]);
-  formBody.push(encodedKey + "=" + encodedValue);
-}
-formBody = formBody.join("&");
-axios.post('http://10.0.0.230:3000/auth/signup',formBody
+// var formBody = [];
+// for (var property in params) {
+//   var encodedKey = encodeURIComponent(property);
+//   var encodedValue = encodeURIComponent(params[property]);
+//   formBody.push(encodedKey + "=" + encodedValue);
+// }
+// formBody = formBody.join("&");
+axios.post('http://10.0.0.230/api/v1.0/users',JSON.stringify(params)
   )
   .then(function (response) {
     console.log(response);
-    if(response.status == 200)
-          alert("200");
+    if(response.status == 201)
+          alert("201");
            self.setState({errors:""});
+           Auth.authenticateUser(USER_ID,response.entity);
        self.setState({message:{text: 'Registration Successful!', styles: ToastStyles.success}});
           self.props.navigator.push({
       component: 'Login'

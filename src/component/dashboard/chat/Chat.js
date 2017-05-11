@@ -7,122 +7,127 @@ import {
   View, TouchableOpacity, Navigator, AsyncStorage, ToolbarAndroid
 } from 'react-native';
 import Auth from '../../../Auth/Auth.js';
-
+var config = {
+  headers: { 'Authorization': 'basic' + Auth.getToken('user') }
+};
+// chat component
 export default class Chat extends Component {
 
   constructor() {
     super();
     this.state = {
       messages: [],
-       actionText: 'Amigo Chat',
+      request_id: '',
+      actionText: 'Amigo Chat',
+      message: null
     };
     this.onSend = this.onSend.bind(this);
+    this.getMessage = this.getMessage.bind(this);
   }
+  // get message from backend
+  getMessage(callback) {
+    return axios.get('http://10.0.0.230//api/v1.0/cmd/response/', {
+      params: {
+        ID: Auth.getToken('messageId')
+      },
+      config
+    })
+      .then(function (response) {
+        callback({
+          _id: response._id,
+          text: repsonse.resp,
+          createdAt: new Date(response.startTime),
+          user: {
+            _id: response.resp.userId,
+            name: response.resp.userName
+          }
+        })
+        console.log(response);
+
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  };
 
   componentDidMount() {
-    //get all getMessages 
-    // axios.get('/user', {
-    //     params: {
-    //       ID: 12345
-    //     }
-    //   })
-    //   .then(function (response) {
-    //     console.log(response);
-    //   })
-    //   .catch(function (error) {
-    //     console.log(error);
-    //   });
-    this.setState({
-      // hard coded for now
-      messages: [
-        {
-          _id: 1,
-          text: 'Hello developer',
-          createdAt: new Date(Date.UTC(2017, 3, 10, 17, 20, 0)),
-          user: {
-            _id: 2,
-            name: 'React Native',
-            avatar: 'https://facebook.github.io/react/img/logo_og.png',
-          },
-        },
-      ],
-    });
-  }
-
-  componentWillMount() {
-    this.setState({
-      // hard coded for now
-      messages: [
-        {
-          _id: 1,
-          text: 'Hello developer',
-          createdAt: new Date(Date.UTC(2017, 3, 10, 17, 20, 0)),
-          user: {
-            _id: 2,
-            name: 'React Native',
-            avatar: 'https://facebook.github.io/react/img/logo_og.png',
-          },
-        },
-      ],
-    });
-  } 
-
-
-   _onActionSelected = (position) => {
-     if(toolbarActions[position].title =='Edit Profile'){
-    this.setState({
-      actionText: 'Selected ' + toolbarActions[position].title,
-    });
-    this.props.navigator.push({
-      component : 'UpdateProfile'
+    //loadMessage here
+    getMessage((message) => {
+      this.setState((previousState) => {
+        return {
+          messages: GiftedChat.append(previousState.messages, message),
+        };
+      });
     })
   }
-  if(toolbarActions[position].title =='Logout'){
-     Auth.deauthenticateUser();
-    this.props.navigator.replace({
-      component :'Login'
-  })
+  // send message to bot service
+  onSend(message) {
+    let self = this;
+    axios.post("http://10.0.0.230/api/v1.0/chat"), config, JSON.stringify(message)
+      .then(function (response) {
+        console.log(response);
+        if (response.status == 202)
+          // get request id from  resposne and updating state
+          self.setState({
+            requestId = response._id
+          })
+        alert("Successful");
+        self.setState({ message: { text: 'Message Sent', styles: ToastStyles.success } });
+        self.props.navigator.push({
+          component: 'Chat'
+        });
+      }).catch(function (error) {
+        console.log(error);
+        self.setState({ message: { text: 'Message failed', styles: ToastStyles.error } });
+      })
   };
-}
-
-
-  onSend(messages = []) {
-    this.setState((previousState) => {
-      return {
-        //post messages
-        messages: GiftedChat.append(previousState.messages, messages),
-      };
-    });
-  }
+  _onActionSelected = (position) => {
+    if (toolbarActions[position].title == 'Edit Profile') {
+      this.setState({
+        actionText: 'Selected ' + toolbarActions[position].title,
+      });
+      this.props.navigator.push({
+        component: 'UpdateProfile'
+      })
+    }
+    if (toolbarActions[position].title == 'Logout') {
+      Auth.deauthenticateUser('token');
+      this.props.navigator.replace({
+        component: 'Login'
+      })
+    };}
 
   render() {
     return (
       <View>
-      <GiftedChat
-        messages={this.state.messages}
-        onSend={this.onSend}
-        user={{
-          _id: 1,
-        }}
-      />
-       <ToolbarAndroid
-            actions={toolbarActions}
-            onActionSelected={this._onActionSelected}
-            style={styles.toolbar}
-            subtitle={this.state.actionText}
-            title="Amigo" />
-    </View>
+        <GiftedChat
+          messages={this.state.messages}
+          onSend={this.onSend}
+          user={{
+            _id: Auth.getToken('user'),
+            name: this.props.username
+          }}
+        />
+        <ToolbarAndroid
+          actions={toolbarActions}
+          onActionSelected={this._onActionSelected}
+          style={styles.toolbar}
+          subtitle={this.state.actionText}
+          title="Amigo" />
+      </View>
     );
-  }}
+  }
+}
 
-   var toolbarActions = [
-  {title: 'Edit Profile', show: 'always'},
-  {title: 'Logout'},
+
+var toolbarActions = [
+  { title: 'Edit Profile', show: 'always' },
+  { title: 'Logout' },
 ];
 
 const styles = StyleSheet.create({
 
-toolbar: {
+  toolbar: {
     backgroundColor: '#3498db',
     height: 56,
   },
