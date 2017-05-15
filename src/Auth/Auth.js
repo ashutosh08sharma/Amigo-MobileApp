@@ -6,9 +6,9 @@ import {
 export default class Auth {
 
 
-  async static authenticateUser(token, value) {
+   static authenticateUser(token, value) {
     try {
-      await AsyncStorage.setItem(token, value);
+       AsyncStorage.setItem(token, value);
     } catch (error) {
       console.log('AsyncStorage error: ' + error.message);
     }

@@ -17,7 +17,7 @@ export default class Chat extends Component {
     super();
     this.state = {
       messages: [],
-      request_id: '',
+      requestId: '',
       actionText: 'Amigo Chat',
       message: null
     };
@@ -68,9 +68,9 @@ export default class Chat extends Component {
         console.log(response);
         if (response.status == 202)
           // get request id from  resposne and updating state
-          self.setState({
-            requestId = response._id
-          })
+          // self.setState({
+          //   requestId = response._id
+          // })
         alert("Successful");
         self.setState({ message: { text: 'Message Sent', styles: ToastStyles.success } });
         self.props.navigator.push({
